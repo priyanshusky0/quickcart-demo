@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: quickcart
+      POSTGRES_PASSWORD: quickcart
+      POSTGRES_DB: quickcart
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U quickcart"]
+      interval: 2s
+      retries: 30
+  api:
+    build: .
+    environment:
+      DATABASE_URL: postgresql+psycopg://quickcart:quickcart@db:5432/quickcart
+      JWT_SECRET: change-me-in-production
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
